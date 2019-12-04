@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, Button, Image, Dimensions, ScrollView } from "react-native";
 import BodyText from "./../components/BodyText";
 import TitleText from "./../components/TitleText";
@@ -6,11 +6,32 @@ import Colors from "../constants/color";
 import MainButton from './../components/MainButton';
 
 const GameOverScreen = props => {
+  const [availableDeviceWidth, setAvailableDeviceWidth] = useState(Dimensions.get('window').width)
+  const [availableDeviceHeight, setAvailableDeviceHeight] = useState(Dimensions.get('window').height)
+
+  useEffect(() => {
+    const updateLayout = () => {
+      setAvailableDeviceHeight(Dimensions.get('window').height)
+      setAvailableDeviceWidth(Dimensions.get('window').width)
+    }
+    Dimensions.addEventListener('change', updateLayout)
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+  })
+
   return (
     <ScrollView>
       <View style={styles.screen}>
         <TitleText>The game is over!</TitleText>
-        <View style={styles.imageContainer}>
+        <View style={{
+          ...styles.imageContainer, ...{
+            width: availableDeviceWidth * 0.7,
+            height: availableDeviceWidth * 0.7,
+            borderRadius: availableDeviceWidth * 0.7 / 2,
+            marginVertical: availableDeviceHeight / 30
+          }
+        }}>
           <Image
             resizeMode="cover"
             style={styles.image}
@@ -21,8 +42,8 @@ const GameOverScreen = props => {
           //   source={require("../assets/success.png")}
           />
         </View>
-        <View style={styles.resultContainer}>
-          <BodyText style={styles.resultText}>
+        <View style={{ ...styles.resultContainer, ...{ marginVertical: availableDeviceHeight / 60 } }}>
+          <BodyText style={{ ...styles.resultText, ...{ fontSize: availableDeviceHeight < 400 ? 16 : 20 } }}>
             Your phone needed{" "}
             <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to
           guess the number{" "}
@@ -32,7 +53,7 @@ const GameOverScreen = props => {
         <BodyText>Number was: {props.userNumber}</BodyText>
         <MainButton onPress={props.onRestart}>NEW GAME</MainButton>
       </View>
-    </ScrollView>
+    </ScrollView >
 
   );
 };
@@ -41,16 +62,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    paddingVertical: 10
   },
   imageContainer: {
-    width: Dimensions.get('window').width * 0.7,
-    height: Dimensions.get('window').width * 0.7,
-    borderRadius: Dimensions.get('window').width * 0.7 / 2,
     borderWidth: 3,
     borderColor: "black",
     overflow: "hidden",
-    marginVertical: Dimensions.get('window').height / 30
   },
   image: {
     width: "100%",
@@ -58,7 +76,6 @@ const styles = StyleSheet.create({
   },
   resultText: {
     textAlign: 'center',
-    fontSize: Dimensions.get('window').height < 400 ? 16 : 20
   },
   highlight: {
     color: Colors.primary,
@@ -66,7 +83,6 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     marginHorizontal: 30,
-    marginVertical: Dimensions.get('window').height / 60
   }
 });
 
